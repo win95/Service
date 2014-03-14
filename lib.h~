@@ -38,3 +38,4 @@ static int get_timezone(void);
 /*Get file size*/
 int get_file_size(FILE *fd);
 /* listen port */
+int listen_c(int port);

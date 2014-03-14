@@ -108,3 +108,21 @@ int get_file_size(FILE *fd) {
   return size;
 }
 
+int listen_c(int port){
+  sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  
+    if( bind(sockfd,(struct sockaddr*)&serv_addr, sizeof(struct sockaddr)) == -1 ){
+        printf ("ERROR: Failed to bind Port %d.\n",port);
+	return 0;
+      }
+      else {
+      printf("[server] bind tcp port %d in addr 0.0.0.0 sucessfully.\n",port);
+      if(listen(sockfd,10) == -1)
+      {
+        printf ("ERROR: Failed to listen Port %d.\n", PORT);
+        return 0;}
+	
+	else {
+	      printf ("[server] listening the port %d sucessfully.\n", PORT);return 1;}
+      }
+}

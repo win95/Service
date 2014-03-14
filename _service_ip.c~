@@ -159,6 +159,8 @@ void *listen_c(int port){
   
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
   memset(&serv_addr, '0', sizeof(serv_addr));
+  memset(msg,'0',sizeof(msg));
+  
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
   serv_addr.sin_port = htons(PORT);
