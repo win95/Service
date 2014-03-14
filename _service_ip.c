@@ -5,6 +5,7 @@ char q[10];
 int 	gw;
 pthread_t waiting_thread;
 pthread_t killing_thread;
+pthread_t listen_cc;
 struct sockaddr_in serv_addr;
 int sockfd = 0;
 FILE *fd;
@@ -155,7 +156,7 @@ void broadcast_request_all_interface() {
   } else printf("No Getway \n\n");
 }
 
-void *listen_c(int port){
+void *listen_c(void *t){
   
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
   memset(&serv_addr, '0', sizeof(serv_addr));
@@ -166,21 +167,21 @@ void *listen_c(int port){
     if (setsockopt(sockfd,SOL_SOCKET,SO_REUSEADDR,(char *)&reuse,sizeof(serv_addr)) < 0 ) error("cant reuse port");
   
     if( bind(sockfd,(struct sockaddr*)&serv_addr, sizeof(struct sockaddr)) == -1 ){
-        printf ("ERROR: Failed to bind Port %d.\n",port);
+        printf ("ERROR: Failed to bind Port %d.\n",PORT);
       }
       else {
-      printf("[server] bind tcp port %d in addr 0.0.0.0 sucessfully.\n",port);
+      printf("[server] bind tcp port %d in addr 0.0.0.0 sucessfully.\n",PORT);
       if(listen(sockfd,10) == -1)
       {
-        printf ("ERROR: Failed to listen Port %d.\n", port);
+        printf ("ERROR: Failed to listen Port %d.\n", PORT);
        }
 	
 	else {
-	      printf ("[server] listening the port %d sucessfully.\n",port);}
+	      printf ("[server] listening the port %d sucessfully.\n",PORT);}
       }
       while(!out);
 
-    pthread_cancel(waiting_thread);
+    pthread_cancel(listen_cc);
   pthread_exit(NULL);
 }
 
@@ -197,6 +198,9 @@ int main(int argc,char *argv){
   if(pthread_create(&killing_thread,NULL,killing_handle,NULL)<0){
     error("Cant create thread kill");
   }
+  if(pthread_create(&listen_cc,NULL,listen_c,NULL)<0){
+    error("Cant create ");
+  }
   /*
   if(pthread_create(listen_c(PORT),NULL,listen_c(PORT),NULL)<0){
     error("Cant create thread kill");
@@ -204,16 +208,14 @@ int main(int argc,char *argv){
   */
   /*Broadcast all interface*/
   broadcast_request_all_interface();
-    if(pthread_create(listen_c(PORT),NULL,listen_c(PORT),NULL)<0){
-    error("Cant create thread kill");
-  }
+  
     
   /*Join thread*/
   void *result;
   
-  //if(pthread_join(listen_c(PORT),&result)<0) error("cant join thread waiting");
-  if(pthread_join(waiting_thread,&result)<0) error("cant join thread waiting");
-  if(pthread_join(killing_thread,&result)<0) error("cant join thread killing");
+  if(pthread_join(listen_cc,&result)<0) 	error("cant join listen_c");
+  if(pthread_join(waiting_thread,&result)<0) 	error("cant join thread waiting");
+  if(pthread_join(killing_thread,&result)<0) 	error("cant join thread killing");
 
  fprintf(stdout,"Out service\n");
   pthread_exit(NULL);
