@@ -18,10 +18,8 @@
 #define PORT 5555
 #define MAXMSG 1024
 
-#define MSG1 "REQUEST"
-#define MSG2 "RESPONSE" 
-#define MSG3 "OUT"
-
+#define MSG1 "RESPONSE"
+#define MSG2 "REQUEST"
 
 /*Hien thi ma loi va noi dung*/
 void error(char *msg);
@@ -29,6 +27,8 @@ void error(char *msg);
 char* now();
 /*Ghi vao file*/
 void write_file(char *file_name,char *msg);
+/*Ghi vao file*/
+void Replace_file(char *file_name,char *msg);
 /*Check ip*/
 int check_ip(char *file_name,char *ip);
 /*Lay clock den microsecond*/
