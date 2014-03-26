@@ -21,6 +21,9 @@
 #define MSG1 "RESPONSE"
 #define MSG2 "REQUEST"
 
+char buff[20];
+char msg_ip[32][32]; // se de luu ip vao de truyen
+
 /*Hien thi ma loi va noi dung*/
 void error(char *msg);
 /*Lay thoi gian hien tai*/
@@ -38,3 +41,7 @@ static int get_timezone(void);
 /*Get file size*/
 int get_file_size(FILE *fd);
 /* listen port */
+
+void read_ip(int i);
+
+void soc_ip();

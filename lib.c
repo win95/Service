@@ -48,6 +48,40 @@ int check_ip(char *file_name,char *ip){
   return 0;
 }
 
+void read_ip(int i){
+
+  FILE *fd = fopen("ip.txt","r");
+  int n=0;
+  char k=1;
+  if(fd == NULL){
+    error("can't open file");
+  }
+  
+    while((fgets(buff,100,fd)!= NULL)&&(k ==1)){
+    if(i==n) k=0;
+    else n++;
+    }
+  fclose(fd);
+}
+
+void soc_ip(){
+
+  FILE *fd = fopen("ip.txt","r");
+  int i=0,j=0;
+  if(fd == NULL) error("can't open file");
+      
+	while(fgets(&msg_ip[j][0],32,fd)!=NULL)
+	{
+	  printf("soc ip %s \n",&msg_ip[j][0]);
+	  j++;
+	} 
+  
+    //while((fgets(msg_ip,100,fd)!= NULL)&&(k ==1))
+  fclose(fd);
+}
+
+
+
 const char* clock_microsecond() {    // gtt
   static char buf[4][sizeof("00:00:00.000000")];
   static int idx = 0;
