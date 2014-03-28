@@ -1,27 +1,25 @@
 #include "lib.h"
 
-int out = 0;
-int flag_send;
-char q[10];
-int 	gw;
-char host[NI_MAXHOST];
-  struct ifaddrs *ifaddr, *ifa;
-  int n;
-  int i;
-  char *hot = "192.160.0.0";
-  char broad[NI_MAXHOST];
-  int broadcast = 1;
-  char msg[MAXMSG];
-pthread_t waiting_thread;
-pthread_t killing_thread;
-pthread_t listen_thread;
+    int out = 0;
+    int 	gw;
+    char host[NI_MAXHOST];
+    struct ifaddrs *ifaddr, *ifa;
+    int n;
+    //int i;
+    char *hot = "192.160.0.0";
+    char broad[NI_MAXHOST];
+    int broadcast = 1;
+    char msg[MAXMSG];
+    pthread_t waiting_thread;
+    pthread_t killing_thread;
+    pthread_t listen_thread;
 
-struct sockaddr_in serv_addr;
-struct sockaddr_in addr_remote;
-struct sockaddr_in clie_addr;
-int sockfd = 0;
-FILE *fd;
-int sin_size; // to store struct size
+    struct sockaddr_in serv_addr;
+    struct sockaddr_in addr_remote;
+    struct sockaddr_in clie_addr;
+    int sockfd = 0;
+    FILE *fd;
+    int sin_size; // to store struct size
     int nsockfd; // New Socket file descriptor
     int num;
     
@@ -30,10 +28,10 @@ int sin_size; // to store struct size
     void *killing_handle(void *t);
     void *listen_handle(void *t);
 /*Ham phuc vu thread waiting*/
-void *waiting_handle(void *t){
+  void *waiting_handle(void *t){
   int sockfd = 0;
   int i;
-  char msg[MAXMSG];
+  //char msg[MAXMSG];
   char msg_rec[32][32]; // se de luu ip vao de truyen 
   size_t size;
   struct sockaddr_in serv_addr;
@@ -45,7 +43,7 @@ void *waiting_handle(void *t){
   
   memset(&serv_addr, '0', sizeof(serv_addr));
   memset(&clie_addr, '0', sizeof(clie_addr));
-  memset(msg,'0',sizeof(msg));
+  memset(msg_rec,'0',sizeof(msg_rec));
   
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -70,14 +68,9 @@ void *waiting_handle(void *t){
     
     if (strstr(&msg_rec[0][0],"REQUEST")) {
       fprintf(stdout,"%s\n",clock_microsecond());
-      fprintf(stdout,"%s xem cai l \n ",&msg_rec[0][0]);
+      //fprintf(stdout,"%s xem cai l \n ",&msg_rec[0][0]);
       fprintf(stdout,"%s From: \nIP: %s\n\n",&msg_rec[0][0],inet_ntoa(clie_addr.sin_addr));
       clie_addr.sin_port = htons(PORT);
-      /*
-       * Luu lai IP o day
-       */
-      //if(check_ip("ip_table.txt",inet_ntoa(clie_addr.sin_addr))==0)
-      //write_file("ip_table.txt",inet_ntoa(clie_addr.sin_addr));
       if(sendto(sockfd,MSG1,sizeof(MSG1),0,(struct sockaddr*)&clie_addr,sizeof(clie_addr)) < 0) {
 	error("Khong gui dc");
       }
@@ -86,22 +79,22 @@ void *waiting_handle(void *t){
     {
       if (strstr(&msg_rec[0][0],"RESPONSE")) {			// nhan lai ban tin RESPONSE xu li luu ip
       
-    //fprintf(stdout,"\nRESPONSE\nFrom \nIP: %s\nPort: %i\n",inet_ntoa(clie_addr.sin_addr),clie_addr.sin_port);  
+      //fprintf(stdout,"\nRESPONSE\nFrom \nIP: %s\nPort: %i\n",inet_ntoa(clie_addr.sin_addr),clie_addr.sin_port);  
       fprintf(stdout,"%s\n",clock_microsecond());
       fprintf(stdout,"%s From: \nIP: %s\n\n",&msg_rec[0][0],inet_ntoa(clie_addr.sin_addr));
       if(check_ip("ip_table.txt",inet_ntoa(clie_addr.sin_addr))==0)
-	if(gw ==1) write_file("ip_table.txt",inet_ntoa(clie_addr.sin_addr));
+	if(gw ==1) write_file1("ip_table.txt",inet_ntoa(clie_addr.sin_addr));
       
     }
     else 
     {
-      if(strstr(&msg_rec[0][0],"127.0.0.1")){
-	printf("nhan dc tu 127.0.0.1\n");
-	write_file("bk.txt",&msg_rec[0][0]);}
-      else
-      {
-      fprintf(stdout,"Khong ho tro ban tin! :%s \n",&msg_rec[1][0]);
-      for(i=0;i<32;i++)
+      if(msg_rec[1][0] ==58)
+      fd = fopen("bk.txt","w");
+      fclose(fd);
+      fprintf(stdout,"nhan ban tin ip vao bk.txt! :%s\n",&msg_rec[1][0]);
+      for(i=0;i<32;i++){
+      //if (strstr(&msg_rec[i][0],"")) i =32;
+      if(check_ip("bk.txt",inet_ntoa(clie_addr.sin_addr))==0)
       write_file("bk.txt",&msg_rec[i][0]);
       //exit(1);
       }
@@ -130,61 +123,16 @@ void *killing_handle(void *t){
     }
     else if(strstr(q,"y"))
     {
-      fprintf(stdout,"ban vua nhap y\n");
+      fprintf(stdout,"ban vua nhap y : yeu cau gui ban tin IP \n");
       soc_ip();
+      /*
       for(i=0;i<32;i++)
       {
       if(strstr(&msg_ip[i+1][0],&msg_ip[i][0])==NULL)
       printf("gia tri mang :%s \n",&msg_ip[i][0] );
       }
+      */
       broadcast_request_all_interface(1);
-      /*
-      flag_send =1;			// co gui cac ban tin
-      printf("da nhap y\n");
-      if(flag_send==1){
-	flag_send =0;
-	printf("gui ban tin den tat ca cac not \n");
-					// boc tach ip ip_table.txt
-					// su dung vong for
-	for(i=0;i<1;i++)
-	{
-	read_ip(i);
-	//bzero(sdbuf,0);
-	//bzero(sdbuf, LENGTH);
-	FILE *fd = fopen("ip.txt","r");
-	while((f_block_sz = fread(sdbuf, sizeof(char),100,fd)) >0 )
-            {
-	      size = sizeof(clie_addr);
-	      
-	          /* Fill the socket address struct */
-		  /*
-		clie_addr.sin_family = AF_INET; 
-		clie_addr.sin_port = htons(PORT);
-		
-		inet_pton(AF_INET,"", &clie_addr.sin_addr);
-		bzero(&(clie_addr.sin_zero), 16);
-		write_file("abc.txt",sdbuf);
-	      //inet_ntoa(clie_addr.sin_addr) = &buff;
-		if(strstr(sdbuf,sdbuf1) !=NULL)
-		{
-                if(sendto(sockfd,sdbuf, f_block_sz,0,(struct sockaddr*)&clie_addr,sizeof(clie_addr)) < 0)
-                {
-                    printf("ERROR: Failed to send file.\n");
-		    close(sockfd);
-                    break;
-                }
-		}
-		else printf("deo send \n");
-                //bzero(sdbuf,16);
-            }
-	//if(sendto(sockfd,MSG2,sizeof(MSG2),0,(struct sockaddr*)&buff,sizeof(buff)) < 0) {
-
-	
-	write_file("ip_table.txt",buff);
-	
-	}
-	}
-	*/
     }
     else fprintf(stdout,"Khong phai tin hieu kill\n");
   }
@@ -217,7 +165,8 @@ void broadcast_request_all_interface( int k) {
     fprintf(stdout,"\nBroadcast interface: %s\n",ifa->ifa_name);
     printf("giao dien mang so %d \n",n);
     fprintf(stdout,"IP: %s \n",host);
-    write_file("ip_table.txt",host);
+    if(check_ip("ip_table.txt",host)==0)
+    write_file1("ip_table.txt",host);
     fprintf(stdout,"Broadcast: %s\n",broad);
     
     if((sockfd = socket(AF_INET,SOCK_DGRAM,0)) < 0){
@@ -297,7 +246,6 @@ int main(int argc,char *argv){
   printf("xoa ip_table.txt");
   fclose(fd);
   }
-  printf("abcdef");
   
 
     

@@ -16,17 +16,16 @@ void write_file(char *file_name,char *msg){
   if (fd == NULL) {
     error("cant open file");    
   }
-  fprintf(fd,"%s\n",msg);
+  fprintf(fd,"%s",msg);
   fclose(fd);
 }
 
-
-void Replace_file(char *file_name,char *msg){
-  FILE *fd = fopen(file_name,"w");
+void write_file1(char *file_name,char *msg){
+  FILE *fd = fopen(file_name,"a");
   if (fd == NULL) {
     error("cant open file");    
   }
-  fprintf(fd,"%s\n",msg);
+  fprintf(fd,":%s\n",msg);
   fclose(fd);
 }
 
@@ -66,7 +65,7 @@ void read_ip(int i){
 
 void soc_ip(){
 
-  FILE *fd = fopen("ip.txt","r");
+  FILE *fd = fopen("ip_table.txt","r");
   int i=0,j=0;
   if(fd == NULL) error("can't open file");
       

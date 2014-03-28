@@ -28,10 +28,10 @@ char msg_ip[32][32]; // se de luu ip vao de truyen
 void error(char *msg);
 /*Lay thoi gian hien tai*/
 char* now();
-/*Ghi vao file*/
+/*Ghi vao file tai gw*/
 void write_file(char *file_name,char *msg);
-/*Ghi vao file*/
-void Replace_file(char *file_name,char *msg);
+/*Ghi vao file khi nhan*/
+void write_file1(char *file_name,char *msg);
 /*Check ip*/
 int check_ip(char *file_name,char *ip);
 /*Lay clock den microsecond*/
@@ -44,4 +44,4 @@ int get_file_size(FILE *fd);
 
 void read_ip(int i);
 
-void soc_ip();
+void soc_ip();		// ham se read file ip_table.tx save to msg_ip
