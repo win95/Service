@@ -68,9 +68,13 @@
     
     if (strstr(&msg_rec[0][0],"REQUEST")) {
       fprintf(stdout,"%s\n",clock_microsecond());
-      //fprintf(stdout,"%s xem cai l \n ",&msg_rec[0][0]);
+      //fprintf(stdout,"gui lai ban tin nhan duoc %s \n ",&msg_rec[0][0]);
       fprintf(stdout,"%s From: \nIP: %s\n\n",&msg_rec[0][0],inet_ntoa(clie_addr.sin_addr));
       clie_addr.sin_port = htons(PORT);
+      
+      if(check_ip("ip_table.txt",inet_ntoa(clie_addr.sin_addr))==0)
+	  if(gw ==1) write_file1("ip_table.txt",inet_ntoa(clie_addr.sin_addr));
+	  
       if(sendto(sockfd,MSG1,sizeof(MSG1),0,(struct sockaddr*)&clie_addr,sizeof(clie_addr)) < 0) {
 	error("Khong gui dc");
       }
@@ -78,14 +82,14 @@
     else 
     {
       if (strstr(&msg_rec[0][0],"RESPONSE")) {			// nhan lai ban tin RESPONSE xu li luu ip
-      
       //fprintf(stdout,"\nRESPONSE\nFrom \nIP: %s\nPort: %i\n",inet_ntoa(clie_addr.sin_addr),clie_addr.sin_port);  
       fprintf(stdout,"%s\n",clock_microsecond());
       fprintf(stdout,"%s From: \nIP: %s\n\n",&msg_rec[0][0],inet_ntoa(clie_addr.sin_addr));
+      
       if(check_ip("ip_table.txt",inet_ntoa(clie_addr.sin_addr))==0)
 	if(gw ==1) write_file1("ip_table.txt",inet_ntoa(clie_addr.sin_addr));
-      
-    }
+	
+      }
     else 
     {
       if(msg_rec[1][0] ==58)
@@ -94,7 +98,7 @@
       fprintf(stdout,"nhan ban tin ip vao bk.txt! :%s\n",&msg_rec[1][0]);
       for(i=0;i<32;i++){
       //if (strstr(&msg_rec[i][0],"")) i =32;
-      if(check_ip("bk.txt",inet_ntoa(clie_addr.sin_addr))==0)
+      if(check_ip("bk.txt",&msg_rec[i][0])==0)
       write_file("bk.txt",&msg_rec[i][0]);
       //exit(1);
       }
@@ -147,7 +151,7 @@ void broadcast_request_all_interface( int k) {
   /*
    * Set up ban tin request broadcast >> all interface
    */
-
+  //k=0;
   
   if (getifaddrs(&ifaddr) == -1) {
     error("Cant get interface");
@@ -191,7 +195,7 @@ void broadcast_request_all_interface( int k) {
 	  error("Khong sendto dc\n");
     }	  else fprintf(stdout,"gui lai ban tin broadcast\n");
     }
-    if(k==0)
+    else
     {
     if(sendto(sockfd,MSG2,sizeof(MSG2),0,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0) {
       error("Khong sendto dc");
@@ -239,14 +243,14 @@ int main(int argc,char *argv){
   */
   /*Broadcast all interface*/
   broadcast_request_all_interface(0);
-  
+  /*
   if(gw==0)
   {
   fd = fopen("ip_table.txt","w");
   printf("xoa ip_table.txt");
   fclose(fd);
   }
-  
+  */
 
     
   /*Join thread*/

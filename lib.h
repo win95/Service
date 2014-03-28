@@ -20,7 +20,7 @@
 
 #define MSG1 "RESPONSE"
 #define MSG2 "REQUEST"
-
+#define MSG3 "OK"
 char buff[20];
 char msg_ip[32][32]; // se de luu ip vao de truyen
 
