@@ -16,7 +16,7 @@ void write_file(char *file_name,char *msg){
   if (fd == NULL) {
     error("cant open file");    
   }
-  fprintf(fd,"%s",msg);
+  fprintf(fd,"%s\n",msg);
   fclose(fd);
 }
 
@@ -27,6 +27,33 @@ void write_file1(char *file_name,char *msg){
   }
   fprintf(fd,":%s\n",msg);
   fclose(fd);
+}
+void write_file2(char *file_name,char *msg1,char *msg2){
+  FILE *fd = fopen(file_name,"a");
+  if (fd == NULL) {
+    error("cant open file");    
+  }
+  fprintf(fd,":%s%s",msg2,msg1);
+  fclose(fd);
+}
+
+void name(char *file_name){
+
+  FILE *fd = fopen(file_name,"r");
+   if (fd == NULL) {
+    error("cant open file");}
+      while(fgets(msg_name,8,fd)!=NULL)
+      {
+	fprintf(stdout,"ten thiet bi :%s \n",msg_name);
+      }
+      sprintf(msg1,"%s@%s",MSG1,msg_name);
+      sprintf(msg2,"%s@%s",MSG2,msg_name);
+      printf("test ban tin msg1 :%s \n",&msg1[0]);
+      printf("tets ban tin msg2 :%s \n",&msg2[0]);
+      //printf("phan tu msg2 : %s \n",msg2);
+      //printf("phan tu msg1 : %s \n",&msg1[24]);
+      //printf("phan tu msg2 : %s \n",&msg2[24]);
+    fclose(fd);  
 }
 
 
@@ -47,21 +74,7 @@ int check_ip(char *file_name,char *ip){
   return 0;
 }
 
-void read_ip(int i){
 
-  FILE *fd = fopen("ip.txt","r");
-  int n=0;
-  char k=1;
-  if(fd == NULL){
-    error("can't open file");
-  }
-  
-    while((fgets(buff,100,fd)!= NULL)&&(k ==1)){
-    if(i==n) k=0;
-    else n++;
-    }
-  fclose(fd);
-}
 
 void soc_ip(){
 
@@ -71,11 +84,8 @@ void soc_ip(){
       
 	while(fgets(&msg_ip[j][0],32,fd)!=NULL)
 	{
-	  printf("soc ip %s \n",&msg_ip[j][0]);
 	  j++;
 	} 
-  
-    //while((fgets(msg_ip,100,fd)!= NULL)&&(k ==1))
   fclose(fd);
 }
 

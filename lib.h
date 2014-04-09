@@ -15,13 +15,16 @@
 
 #include <pthread.h>
 
-#define PORT 5555
+#define PORT 	5555
 #define MAXMSG 1024
 
 #define MSG1 "RESPONSE"
-#define MSG2 "REQUEST"
+#define MSG2 "REQUESTE"
 #define MSG3 "OK"
-char buff[20];
+
+char msg_name [8];
+char msg1[32];
+char msg2[32];
 char msg_ip[32][32]; // se de luu ip vao de truyen
 
 /*Hien thi ma loi va noi dung*/
@@ -32,6 +35,8 @@ char* now();
 void write_file(char *file_name,char *msg);
 /*Ghi vao file khi nhan*/
 void write_file1(char *file_name,char *msg);
+/*Ghi vao file khi nhan*/
+void write_file2(char *file_name,char *msg1,char *msg2);
 /*Check ip*/
 int check_ip(char *file_name,char *ip);
 /*Lay clock den microsecond*/
@@ -42,6 +47,5 @@ static int get_timezone(void);
 int get_file_size(FILE *fd);
 /* listen port */
 
-void read_ip(int i);
-
+void name(char *file_name);
 void soc_ip();		// ham se read file ip_table.tx save to msg_ip

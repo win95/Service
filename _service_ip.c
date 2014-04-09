@@ -5,25 +5,18 @@
     char host[NI_MAXHOST];
     struct ifaddrs *ifaddr, *ifa;
     int n;
-    //int i;
-    char *hot = "192.160.0.0";
     char broad[NI_MAXHOST];
     int broadcast = 1;
-    char msg[MAXMSG];
     pthread_t waiting_thread;
     pthread_t killing_thread;
     pthread_t listen_thread;
 
     struct sockaddr_in serv_addr;
-    struct sockaddr_in addr_remote;
     struct sockaddr_in clie_addr;
     int sockfd = 0;
     FILE *fd;
-    int sin_size; // to store struct size
-    int nsockfd; // New Socket file descriptor
-    int num;
     
-    void broadcast_request_all_interface();
+    void broadcast_request_all_interface(int k);
     void *waiting_handle(void *t);
     void *killing_handle(void *t);
     void *listen_handle(void *t);
@@ -31,7 +24,6 @@
   void *waiting_handle(void *t){
   int sockfd = 0;
   int i;
-  //char msg[MAXMSG];
   char msg_rec[32][32]; // se de luu ip vao de truyen 
   size_t size;
   struct sockaddr_in serv_addr;
@@ -64,46 +56,69 @@
       error("Khong nhan dc ban tin");
     }
     
-    //fprintf(stdout,"Got msg: %s\n",msg);
-    
-    if (strstr(&msg_rec[0][0],"REQUEST")) {
+    if (strstr(&msg_rec[0][0],"REQUESTE")) {
       fprintf(stdout,"%s\n",clock_microsecond());
-      //fprintf(stdout,"gui lai ban tin nhan duoc %s \n ",&msg_rec[0][0]);
       fprintf(stdout,"%s From: \nIP: %s\n\n",&msg_rec[0][0],inet_ntoa(clie_addr.sin_addr));
       clie_addr.sin_port = htons(PORT);
       
-      if(check_ip("ip_table.txt",inet_ntoa(clie_addr.sin_addr))==0)
-	  if(gw ==1) write_file1("ip_table.txt",inet_ntoa(clie_addr.sin_addr));
-	  
-      if(sendto(sockfd,MSG1,sizeof(MSG1),0,(struct sockaddr*)&clie_addr,sizeof(clie_addr)) < 0) {
+	  if(check_ip("ip_table.txt",inet_ntoa(clie_addr.sin_addr))==0)
+	    if(gw ==1) {write_file2("ip_table.txt",&msg_rec[0][8],inet_ntoa(clie_addr.sin_addr));}
+
+      if(sendto(sockfd,msg1,sizeof(msg1),0,(struct sockaddr*)&clie_addr,sizeof(clie_addr)) < 0) {
 	error("Khong gui dc");
       }
     }
     else 
     {
-      if (strstr(&msg_rec[0][0],"RESPONSE")) {			// nhan lai ban tin RESPONSE xu li luu ip
-      //fprintf(stdout,"\nRESPONSE\nFrom \nIP: %s\nPort: %i\n",inet_ntoa(clie_addr.sin_addr),clie_addr.sin_port);  
+      if (strstr(&msg_rec[0][0],"RESPONSE")) {			// nhan lai ban tin RESPONSE xu li luu ip  
       fprintf(stdout,"%s\n",clock_microsecond());
       fprintf(stdout,"%s From: \nIP: %s\n\n",&msg_rec[0][0],inet_ntoa(clie_addr.sin_addr));
       
-      if(check_ip("ip_table.txt",inet_ntoa(clie_addr.sin_addr))==0)
-	if(gw ==1) write_file1("ip_table.txt",inet_ntoa(clie_addr.sin_addr));
-	
+	  if(check_ip("ip_table.txt",inet_ntoa(clie_addr.sin_addr))==0)
+	    if(gw ==1) {write_file2("ip_table.txt",&msg_rec[0][8],inet_ntoa(clie_addr.sin_addr));}
+
+      
       }
     else 
     {
-      if(msg_rec[1][0] ==58)
-      fd = fopen("bk.txt","w");
-      fclose(fd);
-      fprintf(stdout,"nhan ban tin ip vao bk.txt! :%s\n",&msg_rec[1][0]);
-      for(i=0;i<32;i++){
-      //if (strstr(&msg_rec[i][0],"")) i =32;
-      if(check_ip("bk.txt",&msg_rec[i][0])==0)
-      write_file("bk.txt",&msg_rec[i][0]);
-      //exit(1);
+      if(msg_rec[0][0] ==58)
+      {
+	fd = fopen("bk.txt","w");
+	fclose(fd);
+	fprintf(stdout,"nhan ban tin ip vao bk.txt!%s\n",&msg_rec[0][0]);
+	for(i=0;i<32;i++){
+	//if /(strstr(&msg_rec[i][0],"")) i =32;
+	if(check_ip("bk.txt",&msg_rec[i][0])==0)
+	  write_file("bk.txt",&msg_rec[i][0]);
+	//exit(1);
+	}
+      }
+      else	// viet neu thich
+      {	
+	  fprintf(stdout,"khong ho tro ban tin nay:%d \n!",msg_rec[0][0]);
       }
     }
   }
+  /*
+  	if(msg_rec[0][8] ==64)
+	{	  
+	  fprintf(stdout,"nhan ten thiet bi : %s \n",&msg_rec[0][8]);
+	  for(i=0;i<32;i++){
+	  if(check_ip("bk1.txt",&msg_rec[i][0])==0)
+	  write_file("bk1.txt",&msg_rec[i][0]);
+	  }
+	}
+	else
+	  {
+	  
+	  fprintf(stdout,"nhan ten thiet bi : %s \n",&msg_rec[0][8]);
+
+	  
+	}
+  */
+  
+  
+  
   }
   fprintf(stdout,"Waiting done... Byebye !\n");
   pthread_exit(NULL);
@@ -112,9 +127,6 @@
 /*Ham phuc vu thread killing*/
 void *killing_handle(void *t){
   char q[5];
-  char sdbuf[16];
-  char sdbuf1[16];
-  int f_block_sz;
   size_t size;
   int i=0;
   memset(&clie_addr, '0', sizeof(clie_addr));
@@ -129,16 +141,15 @@ void *killing_handle(void *t){
     {
       fprintf(stdout,"ban vua nhap y : yeu cau gui ban tin IP \n");
       soc_ip();
-      /*
-      for(i=0;i<32;i++)
-      {
-      if(strstr(&msg_ip[i+1][0],&msg_ip[i][0])==NULL)
-      printf("gia tri mang :%s \n",&msg_ip[i][0] );
-      }
-      */
       broadcast_request_all_interface(1);
     }
-    else fprintf(stdout,"Khong phai tin hieu kill\n");
+    else if(strstr(q,"n"))
+    {
+      fprintf(stdout,"yeu cau gui ten cho gw \n");
+      broadcast_request_all_interface(2);
+    }
+      else
+      fprintf(stdout,"Khong phai tin hieu kill\n");
   }
   fprintf(stdout,"Killing done... Byebye !\n");
   pthread_cancel(waiting_thread);
@@ -157,7 +168,9 @@ void broadcast_request_all_interface( int k) {
     error("Cant get interface");
   }
   
-  for (ifa = ifaddr,n=0; ifa != NULL; ifa = ifa->ifa_next,n++) {
+  for (ifa = ifaddr,n=1; ifa != NULL; ifa = ifa->ifa_next,n++) {
+    
+    
     if (ifa->ifa_addr == NULL || ifa->ifa_addr->sa_family != AF_INET || strstr(ifa->ifa_name,"lo") )
     { n--;continue;}
     if(getnameinfo(ifa->ifa_addr,sizeof(struct sockaddr_in),host,NI_MAXHOST,NULL,0,NI_NUMERICHOST)<0) {
@@ -169,8 +182,8 @@ void broadcast_request_all_interface( int k) {
     fprintf(stdout,"\nBroadcast interface: %s\n",ifa->ifa_name);
     printf("giao dien mang so %d \n",n);
     fprintf(stdout,"IP: %s \n",host);
-    if(check_ip("ip_table.txt",host)==0)
-    write_file1("ip_table.txt",host);
+    //if(check_ip("ip_table.txt",host)==0)
+    //write_file1("ip_table.txt",host);
     fprintf(stdout,"Broadcast: %s\n",broad);
     
     if((sockfd = socket(AF_INET,SOCK_DGRAM,0)) < 0){
@@ -189,30 +202,45 @@ void broadcast_request_all_interface( int k) {
       error("Khong convert dc IP broadcast");
     }
     
-    if(k==1)							// ham khi co bien truyen vao
+    switch(k)
+    {
+      case 0:
+    {
+    if(sendto(sockfd,msg2,sizeof(msg2),0,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0) {
+      error("Khong sendto dc");
+    }
+    else printf("gui ban tin request %d \n",n);
+    //close(sockfd);      
+    }; break; 
+      case 1:							// truyen ip
     {
          if(sendto(sockfd,&msg_ip[0][0],1024,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0) {
 	  error("Khong sendto dc\n");
     }	  else fprintf(stdout,"gui lai ban tin broadcast\n");
-    }
-    else
+    }; break;
+      case 2:							// NAME
     {
-    if(sendto(sockfd,MSG2,sizeof(MSG2),0,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0) {
-      error("Khong sendto dc");
+          if(sendto(sockfd,&msg_name,8,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0) {
+	  error("Khong sendto dc ban tin NAME\n");
+	  }	  
+	  else fprintf(stdout,"ban tin broadcast gui NAME not mang\n");
+    } ; break;
+
+      default : break;
+      
     }
-    else printf("gui ban tin request %d \n",n);
-    }//close(sockfd);      
-  } 
-  if(n>=2){			// kiem tra nut co phai la gw hay khong 
+    
+  if(n>=0){			// kiem tra nut co phai la gw hay khong 
     gw =1 ;			// neu la gw thi servic phai co chuc nang truyen ip sang
     printf("La Getway %d\n\n",n); 
   } else printf("No Getway %d\n\n",n);
 }
 
+}
+
 void *listen_handle(void *t){
-  int *x;
-  int y;
-  x=&y;
+  
+  
   pthread_cancel(listen_thread);
   pthread_exit(NULL);
 }
@@ -224,7 +252,10 @@ int main(int argc,char *argv){
   fclose(fd);
   fd = fopen("bk.txt","w");
   fclose(fd);
+  fd = fopen("bk1.txt","w");
+  fclose(fd);
   
+    name("name.txt");
   /*Create thread*/
     if(pthread_create(&listen_thread,NULL,listen_handle,NULL)<0){
     error("Cant create ");
