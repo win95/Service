@@ -14,6 +14,7 @@
 #include <time.h>
 
 #include <pthread.h>
+
 #define PORT 	5555
 #define MAXMSG 1024
 
@@ -595,12 +596,12 @@ int main(int argc,char *argv){
   if(pthread_create(&killing_thread,NULL,killing_handle,NULL)<0){
     error("Cant create thread kill\n");
     }else printf("create killing\n");
-  if(pthread_create(&updateip_thread,NULL,dc_update_ip,NULL)<0){
-    error("Cant create thread update ip\n");
-    }else printf("create update ip\n");
+   if(pthread_create(&updateip_thread,NULL,dc_update_ip,NULL)<0){
+     error("Cant create thread update ip\n");
+     }else printf("create update ip\n");
   
     /*Broadcast all interface*/
-  broadcast_request_all_interface(0);
+  //broadcast_request_all_interface(0);
 
   /*Join thread*/
   void *result;
